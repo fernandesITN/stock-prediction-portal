@@ -6,11 +6,13 @@ import Register from './assets/components/Register'
 import Header from './assets/components/Header'
 import Footer from './assets/components/Footer'
 import Login from './assets/components/Login'
+import AuthProvider from './AuthProvider'
 
 function App() {
 
   return (
     <>
+      <AuthProvider>
       <BrowserRouter>
       <Header />
         <Routes>
@@ -20,6 +22,7 @@ function App() {
         </Routes>
         <Footer />
       </BrowserRouter>
+      </AuthProvider>
     </>
   )
 }
