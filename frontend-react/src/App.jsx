@@ -7,6 +7,9 @@ import Header from './assets/components/Header'
 import Footer from './assets/components/Footer'
 import Login from './assets/components/Login'
 import AuthProvider from './AuthProvider'
+import Dashboard from './assets/components/dashboard/Dashboard'
+import PrivateRoute from './PrivateRoute'
+import PublicRouter from './PublicRouter'
 
 function App() {
 
@@ -17,8 +20,9 @@ function App() {
       <Header />
         <Routes>
           <Route path='/' element={<Main />}/>
-          <Route path='/register' element={<Register />}/>
-          <Route path='/login' element={<Login/>}/>
+          <Route path='/register' element={<PublicRouter><Register/></PublicRouter>}/>
+          <Route path='/login' element={<PublicRouter><Login/></PublicRouter>}/>
+          <Route path='/dashboard' element={<PrivateRoute><Dashboard /></PrivateRoute>} />
         </Routes>
         <Footer />
       </BrowserRouter>
