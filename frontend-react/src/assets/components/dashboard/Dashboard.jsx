@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react'
 import axiosInstance from '../../../axiosInstance'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faSpinner } from '@fortawesome/free-solid-svg-icons'
+import { faSpinner, faDownload } from '@fortawesome/free-solid-svg-icons'
 
 const Dashboard = () => {
     const [ticker, setTicker] = useState('')
@@ -18,7 +18,7 @@ const Dashboard = () => {
     useEffect(()=>{
         const fetchProtectedData = async () =>{
             try{
-                const response = await axiosInstance.get('/protected-view/',);
+                const response = await axiosInstance.get('/protected-view/');
                 console.log('Success:', response.data);
             }catch(error){
                 console.error('Error fetching data:', error )
@@ -58,54 +58,106 @@ const Dashboard = () => {
         }
     }
 
-  return (
-    <div className='container'>
-    <div className="row">
-        <div className="col-md-6 mx-auto">
-            <form onSubmit={handleSubmit}>
-                <input type="text" className='form-control' placeholder='Enter Stock Ticker'
-                onChange={(e) => setTicker(e.target.value)} required
-                />
-                <small>{error &&  <div className='text-danger'>{error}</div>}</small>
-                <button type='submit' className='btn btn-info mt-3'>
-                    {loading ? <span><FontAwesomeIcon icon={faSpinner}spin />Please Wait...</span>: 'See Prediction'}
-                </button>
-            </form>
+    // Função para baixar imagens
+    const downloadImage = (imageUrl, filename) => {
+        fetch(imageUrl)
+            .then(response => response.blob())
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename || 'image.png';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+            });
+    };
+
+    return (
+        <div className='container'>
+        <div className="row">
+            <div className="col-md-6 mx-auto">
+                <form onSubmit={handleSubmit}>
+                    <input type="text" className='form-control' placeholder='Enter Stock Ticker'
+                    onChange={(e) => setTicker(e.target.value)} required
+                    />
+                    <small>{error &&  <div className='text-danger'>{error}</div>}</small>
+                    <button type='submit' className='btn btn-info mt-3'>
+                        {loading ? <span><FontAwesomeIcon icon={faSpinner} spin /> Please Wait...</span>: 'See Prediction'}
+                    </button>
+                </form>
+            </div>
+            {/*Print Prediction Plots */}
+            {prediction && (
+                <div className="prediction mt-5">
+                <div className="p-3">
+                    {plot && (
+                        <div>
+                            <img src={plot} style={{maxWidth: '100%'}}/>
+                            <button 
+                                onClick={() => downloadImage(plot, `${ticker}_plot.png`)} 
+                                className="btn btn-sm btn-success mt-2"
+                                style={{backgroundColor: '#10cbf0', borderColor: '#10cbf0', color: '#020600'}}
+                            >
+                                <FontAwesomeIcon icon={faDownload} /> Download Plot
+                            </button>
+                        </div>
+                    )}
+                </div>
+                <div className="p-3">
+                    {ma100 && (
+                        <div>
+                            <img src={ma100} style={{maxWidth: '100%'}}/>
+                            <button 
+                                onClick={() => downloadImage(ma100, `${ticker}_ma100.png`)} 
+                                className="btn btn-sm btn-success mt-2"
+                                style={{backgroundColor: '#10cbf0', borderColor: '#10cbf0', color: '#020600'}}
+                            >
+                                <FontAwesomeIcon icon={faDownload} /> Download MA100
+                            </button>
+                        </div>
+                    )}
+                </div>
+                <div className="p-3">
+                    {ma200 && (
+                        <div>
+                            <img src={ma200} style={{maxWidth: '100%'}}/>
+                            <button 
+                                onClick={() => downloadImage(ma200, `${ticker}_ma200.png`)} 
+                                className="btn btn-sm btn-success mt-2"
+                                style={{backgroundColor: '#10cbf0', borderColor: '#10cbf0', color: '#020600'}}
+                            >
+                                <FontAwesomeIcon icon={faDownload} /> Download MA200
+                            </button>
+                        </div>
+                    )}
+                </div>
+                <div className="p-3">
+                    {prediction && (
+                        <div>
+                            <img src={prediction} style={{maxWidth: '100%'}}/>
+                            <button 
+                                onClick={() => downloadImage(prediction, `${ticker}_prediction.png`)} 
+                                className="btn btn-sm btn-success mt-2"
+                                style={{backgroundColor: '#10cbf0', borderColor: '#10cbf0', color: '#020600'}}
+                            >
+                                <FontAwesomeIcon icon={faDownload} /> Download Prediction
+                            </button>
+                        </div>
+                    )}
+                </div>
+                <div className="text-light p-3">
+                    <h4>Model Evaluation</h4>
+                    <p>Mean Squared Error (MSE): {mse}</p>
+                    <p>Root Mean Squared Error (RMSE): {rmse}</p>
+                    <p>R-Squared: {r2}</p>
+                </div>
+                </div>
+            )}
         </div>
-        {/*Print Prediction Plots */}
-        {prediction && (
-             <div className="prediction mt-5">
-             <div className="p-3">
-                 {plot && (
-                     <img src={plot} style={{maxWidth: '100%'}}/>
-                 )}
-             </div>
-             <div className="p-3">
-                 {ma100 && (
-                     <img src={ma100} style={{maxWidth: '100%'}}/>
-                 )}
-             </div>
-             <div className="p-3">
-                 {ma200 && (
-                     <img src={ma200} style={{maxWidth: '100%'}}/>
-                 )}
-             </div>
-             <div className="p-3">
-                 {prediction && (
-                     <img src={prediction} style={{maxWidth: '100%'}}/>
-                 )}
-             </div>
-             <div className="text-light p-3">
-                 <h4>Model Evalution</h4>
-                 <p>Mean Squared Error (MSE): {mse}</p>
-                 <p>Root Mean Squared Error (RMSE): {rmse}</p>
-                 <p>R-Squared: {r2}</p>
-             </div>
-         </div>
-        )}
-    </div>
-    </div>
-  )
+        </div>
+    )
 }
 
 export default Dashboard
